@@ -28,7 +28,11 @@ class Client(discord.Client):
 
         if message.content.startswith("!closey-update"):
             async with message.channel.typing():
-                url = 'https://github.com/jenra-uwu/closey-lang/releases/download/nightly/closeyc-nightly-ubuntu-latest-20210625-de77dd.zip'
+                url = ''
+                for asset in requests.get('https://api.github.com/repos/jenra-uwu/closey-lang/releases').json()[0]['assets']:
+                    if 'ubuntu' in asset['name']:
+                        url = asset['browser_download_url']
+
                 r = requests.get(url, allow_redirects=True)
 
                 try:
