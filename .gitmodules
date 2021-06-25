@@ -1,0 +1,3 @@
+[submodule "closey-lang"]
+	path = closey-lang
+	url = git@github.com:jenra-uwu/closey-lang
