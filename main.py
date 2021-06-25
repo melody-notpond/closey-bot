@@ -1,4 +1,5 @@
 import os
+import requests
 import discord
 from dotenv import load_dotenv
 import subprocess
@@ -25,7 +26,26 @@ class Client(discord.Client):
         if message.author == self.user:
             return
 
-        if (message.content.startswith('!closey')):
+        if message.content.startswith("!closey-update"):
+            async with message.channel.typing():
+                url = 'https://github.com/jenra-uwu/closey-lang/releases/download/nightly/closeyc-nightly-ubuntu-latest-20210625-de77dd.zip'
+                r = requests.get(url, allow_redirects=True)
+
+                try:
+                    os.mkdir('bin');
+                except FileExistsError:
+                    pass
+
+                with open('bin/closeyc.zip', 'wb') as f:
+                    f.write(r.content)
+
+                subprocess.run(['unzip', '-o', './bin/closeyc.zip', '-d', './bin/'], capture_output=True)
+                os.remove('bin/closeyc.zip');
+                embed=discord.Embed(title="Success", description='Successfully updated!', color=0x00ff00)
+                response = await message.reply(embed=embed)
+            return
+
+        if message.content.startswith('!closey'):
             args: list[str] = message.content.split('\n')[0].split(' ')
             mode = 'exec'
             if len(args) > 1:
