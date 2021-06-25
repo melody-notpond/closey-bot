@@ -1,6 +1,7 @@
 import os
 import discord
 from dotenv import load_dotenv
+import subprocess
 
 load_dotenv()
 my_secret = os.getenv("TOKEN")
@@ -26,23 +27,20 @@ class Client(discord.Client):
 
         if (message.content.startswith('!closey')):
             args: list[str] = message.content.split('\n')[0].split(' ')
-            mode = CLOSEY_MODE_EXEC
+            mode = 'exec'
             if len(args) > 1:
-                if args[1] == 'exec':
-                    mode = CLOSEY_MODE_EXEC
-                elif args[1] == 'analyse' or args[1] == 'analyze':
-                    mode = CLOSEY_MODE_CORRECTNESS
-                elif args[1] == 'ir':
-                    mode = CLOSEY_MODE_IR
-                elif args[1] == 'codegen':
-                    mode = CLOSEY_MODE_CODEGEN
-                else:
-                    response = await message.reply("Invalid option! Please use one of exec, analyse, ir, or codegen.")
-                    replies[message.id] = response
-                    return
+                mode = args[1]
 
             async with message.channel.typing():
-                response = await message.reply("mode: %i" % mode)
+                output = subprocess.run(['./bin/closeyc', 'exec', '\n'.join(message.content.split('```')[1:][::2]), mode], capture_output=True)
+                stdout,stderr = output.stdout.decode('utf-8'), output.stderr.decode('utf-8')
+
+                if not stderr:
+                    embed=discord.Embed(title="Success", description='```' + stdout + '```', color=0x00ff00)
+                    response = await message.reply(embed=embed)
+                else:
+                    embed=discord.Embed(title="Error", description='```' + stderr + '```', color=0xff0000)
+                    response = await message.reply(embed=embed)
                 replies[message.id] = response
 
 
