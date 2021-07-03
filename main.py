@@ -5,10 +5,7 @@ from dotenv import load_dotenv
 import subprocess
 
 load_dotenv()
-my_secret = os.getenv("TOKEN")
-
-
-TOKEN = os.environ['TOKEN']
+TOKEN = os.getenv("TOKEN")
 
 replies: dict[int, discord.Message] = {}
 
@@ -51,12 +48,12 @@ class Client(discord.Client):
 
         if message.content.startswith('!closey'):
             args: list[str] = message.content.split('\n')[0].split(' ')
-            mode = 'exec'
+            mode = 'run'
             if len(args) > 1:
                 mode = args[1]
 
             async with message.channel.typing():
-                output = subprocess.run(['./bin/closeyc', 'exec', '\n'.join(message.content.split('```')[1:][::2]), mode], capture_output=True)
+                output = subprocess.run(['./bin/closeyc', mode, '-e', '\n'.join(message.content.split('```')[1:][::2])], capture_output=True)
                 stdout,stderr = output.stdout.decode('utf-8'), output.stderr.decode('utf-8')
 
                 if not stderr:
